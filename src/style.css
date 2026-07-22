@@ -1,0 +1,87 @@
+@import url("https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/Vazirmatn-font-face.css");
+
+:root {
+  --ink: #1c1c1c;
+  --ink-muted: #6b6b6b;
+  --line: #bdbdbd;
+  --line-strong: #8a8a8a;
+  --surface: #ffffff;
+  --surface-muted: #f4f4f4;
+  --accent: #0f5c52;
+  --accent-soft: #e6efee;
+  --danger: #b3261e;
+  --radius: 4px;
+  color-scheme: light;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  overflow: hidden;
+}
+
+#app {
+  height: 100vh;
+  overflow: hidden;
+}
+
+body {
+  font-family: "Vazirmatn", "Tahoma", sans-serif;
+  direction: rtl;
+  background: #eef0ef;
+  color: var(--ink);
+  font-size: 12px;
+  line-height: 1.45;
+}
+
+input,
+select,
+textarea {
+  font-family: inherit;
+  direction: rtl;
+  font-size: 12px;
+  color: var(--ink);
+}
+
+button {
+  font-family: inherit;
+  cursor: pointer;
+}
+
+/* Numbers read left-to-right even inside an RTL document */
+.ltr-nums {
+  direction: ltr;
+  unicode-bidi: isolate;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Visually hidden but still announced by screen readers — used when a
+   visible heading/switch elsewhere already states an element's name. */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+@media print {
+  html,
+  body,
+  #app {
+    height: auto;
+    overflow: visible;
+    background: #fff;
+  }
+}
