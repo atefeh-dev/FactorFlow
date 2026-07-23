@@ -100,3 +100,4 @@ npm run dev
 - PDF export (pdfmake, doc-definition built from the same store) + debounced
   live PDF preview, reusing the exact same data → document mapping used for download
 - Shareable link (serialize store to URL) and localStorage persistence
+# FactorFlow
