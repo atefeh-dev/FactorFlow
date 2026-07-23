@@ -7,6 +7,7 @@ import type {
   InvoiceLineItem,
   InvoiceState,
   OptionalFieldsState,
+  PartyFieldVisibility,
   PartyInfo,
   SignatureInfo,
 } from "../types/invoice.types";
@@ -64,6 +65,17 @@ function emptyFooter(): InvoiceFooter {
   };
 }
 
+function defaultPartyFieldVisibility(): PartyFieldVisibility {
+  return {
+    economicNumber: true,
+    nationalId: true,
+    registrationNumber: true,
+    postalCode: true,
+    phone: true,
+    email: true,
+  };
+}
+
 function defaultOptionalFields(): OptionalFieldsState {
   return {
     notes: false,
@@ -72,6 +84,8 @@ function defaultOptionalFields(): OptionalFieldsState {
     bankInfo: true,
     headerNotes: false,
     logo: true,
+    sellerFields: defaultPartyFieldVisibility(),
+    buyerFields: defaultPartyFieldVisibility(),
   };
 }
 
@@ -154,6 +168,10 @@ export const useInvoiceStore = defineStore("invoice", {
     },
     updateOptional(patch: Partial<OptionalFieldsState>) {
       Object.assign(this.optional, patch);
+    },
+    setPartyFieldVisible(kind: "seller" | "buyer", field: keyof PartyFieldVisibility, value: boolean) {
+      const target = kind === "seller" ? this.optional.sellerFields : this.optional.buyerFields;
+      target[field] = value;
     },
     setLogo(dataUrl: string | null) {
       this.logoDataUrl = dataUrl;

@@ -93,6 +93,18 @@ export interface InvoiceFooter {
 
 export type Currency = "toman" | "rial";
 
+/** Fields on a party (seller/buyer) that are optional to show in the
+ * preview — name, address, and mobile are always shown and not included
+ * here. */
+export interface PartyFieldVisibility {
+  economicNumber: boolean;
+  nationalId: boolean;
+  registrationNumber: boolean;
+  postalCode: boolean;
+  phone: boolean;
+  email: boolean;
+}
+
 export interface OptionalFieldsState {
   notes: boolean;
   shippingCost: boolean;
@@ -101,6 +113,8 @@ export interface OptionalFieldsState {
   headerNotes: boolean;
   /** آیا لوگو (در صورت آپلود) در پیش‌نمایش/فاکتور نهایی نمایش داده شود */
   logo: boolean;
+  sellerFields: PartyFieldVisibility;
+  buyerFields: PartyFieldVisibility;
 }
 
 export interface InvoiceState {

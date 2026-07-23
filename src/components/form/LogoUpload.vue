@@ -114,7 +114,7 @@ function removeLogo(e: Event) {
   cursor: pointer;
   color: var(--ink-muted);
   background: #fff;
-  transition: border-color 0.15s ease, background 0.15s ease;
+  transition: border-color var(--duration-base) var(--ease-standard), background var(--duration-base) var(--ease-standard);
 }
 
 .logo-upload__dropzone:hover,
@@ -197,6 +197,7 @@ function removeLogo(e: Event) {
   display: flex;
   align-items: center;
   justify-content: center;
+  transition: background var(--duration-base) var(--ease-standard), color var(--duration-base) var(--ease-standard);
 }
 
 .logo-upload__remove:hover {

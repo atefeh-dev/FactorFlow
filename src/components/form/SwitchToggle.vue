@@ -56,8 +56,13 @@ function toggle() {
   background: var(--surface-muted);
   position: relative;
   padding: 0;
-  transition: background 0.15s ease, border-color 0.15s ease;
+  transition: background var(--duration-base) var(--ease-standard),
+    border-color var(--duration-base) var(--ease-standard), transform var(--duration-fast) var(--ease-out);
   flex-shrink: 0;
+}
+
+.switch:active {
+  transform: scale(0.94);
 }
 
 .switch--on {
@@ -74,7 +79,7 @@ function toggle() {
   border-radius: 50%;
   background: #fff;
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.25);
-  transition: transform 0.15s ease;
+  transition: transform var(--duration-base) var(--ease-out);
 }
 
 .switch--on .switch__thumb {

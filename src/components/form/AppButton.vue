@@ -68,7 +68,13 @@ withDefaults(
   border: 1px solid transparent;
   white-space: nowrap;
   cursor: pointer;
-  transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+  transition: background var(--duration-base) var(--ease-standard),
+    border-color var(--duration-base) var(--ease-standard), color var(--duration-base) var(--ease-standard),
+    transform var(--duration-fast) var(--ease-out);
+}
+
+.app-btn:active:not(:disabled) {
+  transform: scale(0.97);
 }
 
 .app-btn:disabled {

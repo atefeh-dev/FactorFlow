@@ -247,6 +247,7 @@ function setAmount(key: "unitPrice" | "discount" | "vatAmount", value: number) {
   border-radius: 8px;
   background: var(--surface);
   overflow: hidden;
+  transition: border-color var(--duration-base) var(--ease-standard), opacity var(--duration-base) var(--ease-standard);
 }
 
 .card--open {
@@ -275,7 +276,7 @@ function setAmount(key: "unitPrice" | "discount" | "vatAmount", value: number) {
   padding: 5px 7px 2px;
   cursor: pointer;
   border-radius: 6px;
-  transition: background 0.15s ease;
+  transition: background var(--duration-base) var(--ease-standard);
 }
 
 .card__summary:hover,
@@ -328,6 +329,8 @@ function setAmount(key: "unitPrice" | "discount" | "vatAmount", value: number) {
   gap: 3px;
   font-size: 10px;
   font-weight: 600;
+  transition: background var(--duration-base) var(--ease-standard),
+    border-color var(--duration-base) var(--ease-standard), color var(--duration-base) var(--ease-standard);
 }
 
 .card__toggle-text {
@@ -345,6 +348,7 @@ function setAmount(key: "unitPrice" | "discount" | "vatAmount", value: number) {
   display: flex;
   align-items: center;
   justify-content: center;
+  transition: background var(--duration-base) var(--ease-standard), color var(--duration-base) var(--ease-standard);
 }
 
 .card__visible-switch {
@@ -373,7 +377,7 @@ function setAmount(key: "unitPrice" | "discount" | "vatAmount", value: number) {
 
 .chevron {
   display: inline-block;
-  transition: transform 0.2s ease;
+  transition: transform var(--duration-base) var(--ease-out);
 }
 
 .card--open .chevron {
@@ -419,7 +423,7 @@ function setAmount(key: "unitPrice" | "discount" | "vatAmount", value: number) {
 
 .card__body {
   overflow: hidden;
-  transition: height 0.2s ease;
+  transition: height var(--duration-base) var(--ease-out);
 }
 
 .card__inner {

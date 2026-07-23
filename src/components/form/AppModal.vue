@@ -42,29 +42,36 @@ onUnmounted(() => {
 
 <template>
   <Teleport to="body">
-    <div class="modal-overlay" @mousedown.self="emit('close')">
-      <div class="modal" role="dialog" aria-modal="true">
-        <header class="modal__head">
-          <div>
-            <h2 class="modal__title">{{ props.title }}</h2>
-            <p v-if="props.subtitle" class="modal__subtitle">{{ props.subtitle }}</p>
+    <Transition name="modal-fade" appear>
+      <div class="modal-overlay" @mousedown.self="emit('close')">
+        <div class="modal" role="dialog" aria-modal="true">
+          <header class="modal__head">
+            <div>
+              <h2 class="modal__title">{{ props.title }}</h2>
+              <p v-if="props.subtitle" class="modal__subtitle">{{ props.subtitle }}</p>
+            </div>
+            <div class="modal__head-end">
+              <div v-if="$slots['header-actions']" class="modal__head-actions">
+                <slot name="header-actions" />
+              </div>
+              <button type="button" class="modal__close" title="بستن" @click="emit('close')">
+                <svg viewBox="0 0 20 20" width="16" height="16" fill="none">
+                  <path d="M5 5 15 15M15 5 5 15" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" />
+                </svg>
+              </button>
+            </div>
+          </header>
+
+          <div class="modal__body">
+            <slot />
           </div>
-          <button type="button" class="modal__close" title="بستن" @click="emit('close')">
-            <svg viewBox="0 0 20 20" width="16" height="16" fill="none">
-              <path d="M5 5 15 15M15 5 5 15" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" />
-            </svg>
-          </button>
-        </header>
 
-        <div class="modal__body">
-          <slot />
+          <footer v-if="$slots.footer" class="modal__footer">
+            <slot name="footer" />
+          </footer>
         </div>
-
-        <footer v-if="$slots.footer" class="modal__footer">
-          <slot name="footer" />
-        </footer>
       </div>
-    </div>
+    </Transition>
   </Teleport>
 </template>
 
@@ -126,6 +133,19 @@ onUnmounted(() => {
   display: flex;
   align-items: center;
   justify-content: center;
+  transition: background var(--duration-base) var(--ease-standard), color var(--duration-base) var(--ease-standard);
+}
+
+.modal__head-end {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.modal__head-actions {
+  flex: 0 0 auto;
+  padding-top: 2px;
 }
 
 .modal__close:hover {
@@ -149,5 +169,34 @@ onUnmounted(() => {
   gap: 10px;
   padding: 16px 22px;
   border-top: 1px solid var(--line);
+}
+
+/* Overlay fades; the panel itself fades in with a slight scale + lift —
+   restrained enough to read as quality, not as a "bounce". */
+.modal-fade-enter-active {
+  transition: opacity var(--duration-base) var(--ease-standard);
+}
+
+.modal-fade-leave-active {
+  transition: opacity var(--duration-fast) var(--ease-standard);
+}
+
+.modal-fade-enter-active .modal {
+  transition: opacity var(--duration-base) var(--ease-out), transform var(--duration-base) var(--ease-out);
+}
+
+.modal-fade-leave-active .modal {
+  transition: opacity var(--duration-fast) var(--ease-standard), transform var(--duration-fast) var(--ease-standard);
+}
+
+.modal-fade-enter-from,
+.modal-fade-leave-to {
+  opacity: 0;
+}
+
+.modal-fade-enter-from .modal,
+.modal-fade-leave-to .modal {
+  opacity: 0;
+  transform: scale(0.97) translateY(6px);
 }
 </style>

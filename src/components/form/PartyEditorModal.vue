@@ -1,10 +1,11 @@
 <script setup lang="ts">
-import { reactive, ref } from "vue";
+import { computed, reactive, ref } from "vue";
 import { useInvoiceStore } from "../../stores/invoice.store";
 import type { PartyInfo } from "../../types/invoice.types";
 import AppModal from "./AppModal.vue";
 import ConfirmDialog from "./ConfirmDialog.vue";
 import AppButton from "./AppButton.vue";
+import SwitchToggle from "./SwitchToggle.vue";
 
 const props = defineProps<{
   kind: "seller" | "buyer";
@@ -16,6 +17,12 @@ const store = useInvoiceStore();
 const isSeller = props.kind === "seller";
 const source = isSeller ? store.seller : store.buyer;
 const isRemoveConfirmOpen = ref(false);
+
+const fieldVisibility = computed(() => (isSeller ? store.optional.sellerFields : store.optional.buyerFields));
+
+function setFieldVisible(field: keyof typeof fieldVisibility.value, value: boolean) {
+  store.setPartyFieldVisible(props.kind, field, value);
+}
 
 // Local draft: nothing is written back to the store until "ذخیره" is
 // pressed, so closing/cancelling the dialog never leaves half-typed data
@@ -55,36 +62,107 @@ function confirmRemoveParty() {
     </label>
 
     <div class="field-grid">
-      <label class="field">
-        <span class="field__label">شماره اقتصادی</span>
-        <input v-model="draft.economicNumber" class="field__input ltr-nums" dir="ltr" placeholder="مقدار را وارد کنید" />
-      </label>
-      <label class="field">
-        <span class="field__label">شناسه ملی</span>
-        <input v-model="draft.nationalId" class="field__input ltr-nums" dir="ltr" placeholder="مقدار را وارد کنید" />
-      </label>
-      <label class="field">
-        <span class="field__label">شماره ثبت</span>
-        <input v-model="draft.registrationNumber" class="field__input ltr-nums" dir="ltr" placeholder="مقدار را وارد کنید" />
-      </label>
-      <label class="field">
-        <span class="field__label">کد پستی</span>
-        <input v-model="draft.postalCode" class="field__input ltr-nums" dir="ltr" placeholder="مقدار را وارد کنید" />
-      </label>
-      <label class="field">
-        <span class="field__label">تلفن</span>
-        <input v-model="draft.phone" class="field__input ltr-nums" dir="ltr" placeholder="تلفن ثابت" />
-      </label>
+      <div class="field">
+        <span class="field__label-row">
+          <label class="field__label" :for="`${kind}-economicNumber`">شماره اقتصادی</label>
+          <SwitchToggle
+            :model-value="fieldVisibility.economicNumber"
+            title="نمایش در پیش‌نمایش"
+            @update:model-value="(v) => setFieldVisible('economicNumber', v)"
+          />
+        </span>
+        <input
+          :id="`${kind}-economicNumber`"
+          v-model="draft.economicNumber"
+          class="field__input ltr-nums"
+          dir="ltr"
+          placeholder="مقدار را وارد کنید"
+        />
+      </div>
+
+      <div class="field">
+        <span class="field__label-row">
+          <label class="field__label" :for="`${kind}-nationalId`">شناسه ملی</label>
+          <SwitchToggle
+            :model-value="fieldVisibility.nationalId"
+            title="نمایش در پیش‌نمایش"
+            @update:model-value="(v) => setFieldVisible('nationalId', v)"
+          />
+        </span>
+        <input
+          :id="`${kind}-nationalId`"
+          v-model="draft.nationalId"
+          class="field__input ltr-nums"
+          dir="ltr"
+          placeholder="مقدار را وارد کنید"
+        />
+      </div>
+
+      <div class="field">
+        <span class="field__label-row">
+          <label class="field__label" :for="`${kind}-registrationNumber`">شماره ثبت</label>
+          <SwitchToggle
+            :model-value="fieldVisibility.registrationNumber"
+            title="نمایش در پیش‌نمایش"
+            @update:model-value="(v) => setFieldVisible('registrationNumber', v)"
+          />
+        </span>
+        <input
+          :id="`${kind}-registrationNumber`"
+          v-model="draft.registrationNumber"
+          class="field__input ltr-nums"
+          dir="ltr"
+          placeholder="مقدار را وارد کنید"
+        />
+      </div>
+
+      <div class="field">
+        <span class="field__label-row">
+          <label class="field__label" :for="`${kind}-postalCode`">کد پستی</label>
+          <SwitchToggle
+            :model-value="fieldVisibility.postalCode"
+            title="نمایش در پیش‌نمایش"
+            @update:model-value="(v) => setFieldVisible('postalCode', v)"
+          />
+        </span>
+        <input
+          :id="`${kind}-postalCode`"
+          v-model="draft.postalCode"
+          class="field__input ltr-nums"
+          dir="ltr"
+          placeholder="مقدار را وارد کنید"
+        />
+      </div>
+
+      <div class="field">
+        <span class="field__label-row">
+          <label class="field__label" :for="`${kind}-phone`">تلفن</label>
+          <SwitchToggle
+            :model-value="fieldVisibility.phone"
+            title="نمایش در پیش‌نمایش"
+            @update:model-value="(v) => setFieldVisible('phone', v)"
+          />
+        </span>
+        <input :id="`${kind}-phone`" v-model="draft.phone" class="field__input ltr-nums" dir="ltr" placeholder="تلفن ثابت" />
+      </div>
+
       <label class="field">
         <span class="field__label">شماره همراه</span>
         <input v-model="draft.mobile" class="field__input ltr-nums" dir="ltr" placeholder="شماره همراه" />
       </label>
     </div>
 
-    <label class="field">
-      <span class="field__label">ایمیل</span>
-      <input v-model="draft.email" type="email" class="field__input ltr-nums" dir="ltr" placeholder="name@email.com" />
-    </label>
+    <div class="field">
+      <span class="field__label-row">
+        <label class="field__label" :for="`${kind}-email`">ایمیل</label>
+        <SwitchToggle
+          :model-value="fieldVisibility.email"
+          title="نمایش در پیش‌نمایش"
+          @update:model-value="(v) => setFieldVisible('email', v)"
+        />
+      </span>
+      <input :id="`${kind}-email`" v-model="draft.email" type="email" class="field__input ltr-nums" dir="ltr" placeholder="name@email.com" />
+    </div>
 
     <template #footer>
       <AppButton
@@ -131,6 +209,13 @@ function confirmRemoveParty() {
   font-weight: 600;
 }
 
+.field__label-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
 .field__input {
   border: 1px solid var(--line);
   border-radius: 7px;
@@ -139,7 +224,7 @@ function confirmRemoveParty() {
   background: var(--surface);
   outline: none;
   width: 100%;
-  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+  transition: border-color var(--duration-base) var(--ease-standard), box-shadow var(--duration-base) var(--ease-standard);
 }
 
 .field__input:focus {

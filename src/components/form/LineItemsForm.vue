@@ -36,7 +36,7 @@ function handleAddRow() {
       </button>
     </div>
 
-    <div class="line-items__list">
+    <TransitionGroup tag="div" name="line-item" class="line-items__list">
       <LineItemCard
         v-for="(row, index) in store.lineItems"
         :key="row.id"
@@ -46,7 +46,7 @@ function handleAddRow() {
         :default-open="row.id === lastAddedId"
         :auto-focus-description="row.id === lastAddedId"
       />
-    </div>
+    </TransitionGroup>
 
     <AppButton variant="solid" block icon="+" @click="handleAddRow">افزودن ردیف</AppButton>
 
@@ -82,6 +82,31 @@ function handleAddRow() {
   display: flex;
   flex-direction: column;
   gap: 5px;
+  position: relative;
+}
+
+.line-item-enter-active {
+  transition: opacity var(--duration-base) var(--ease-out), transform var(--duration-base) var(--ease-out);
+}
+
+.line-item-leave-active {
+  transition: opacity var(--duration-fast) var(--ease-standard), transform var(--duration-fast) var(--ease-standard);
+  position: absolute;
+  width: 100%;
+}
+
+.line-item-move {
+  transition: transform var(--duration-base) var(--ease-out);
+}
+
+.line-item-enter-from {
+  opacity: 0;
+  transform: translateY(-6px);
+}
+
+.line-item-leave-to {
+  opacity: 0;
+  transform: scale(0.98);
 }
 
 .currency-switch {
@@ -102,7 +127,7 @@ function handleAddRow() {
   border-radius: 5px;
   font-size: 11px;
   font-weight: 600;
-  transition: background 0.15s ease, color 0.15s ease;
+  transition: background var(--duration-base) var(--ease-standard), color var(--duration-base) var(--ease-standard);
 }
 
 .currency-switch__option--active {

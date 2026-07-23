@@ -140,7 +140,7 @@ defineExpose({ refresh });
 .collapsible__chevron {
   display: inline-flex;
   color: var(--ink-muted);
-  transition: transform 0.2s ease;
+  transition: transform var(--duration-base) var(--ease-out);
 }
 
 .collapsible--open .collapsible__chevron {
@@ -149,7 +149,7 @@ defineExpose({ refresh });
 
 .collapsible__body {
   overflow: hidden;
-  transition: height 0.22s ease;
+  transition: height var(--duration-base) var(--ease-out);
 }
 
 .collapsible__inner {

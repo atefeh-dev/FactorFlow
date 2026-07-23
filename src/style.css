@@ -12,6 +12,27 @@
   --danger: #b3261e;
   --radius: 4px;
   color-scheme: light;
+
+  /* Motion — one shared vocabulary so every hover/press/expand/modal in the
+     app moves with the same feel instead of a patchwork of ad-hoc values.
+     ease-out: entrances, presses, anything that should feel responsive.
+     ease-standard: symmetric state changes (color/background swaps). */
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-standard: cubic-bezier(0.4, 0, 0.2, 1);
+  --duration-fast: 120ms;
+  --duration-base: 180ms;
+  --duration-slow: 260ms;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }
 
 * {

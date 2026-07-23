@@ -218,7 +218,7 @@ const roundingDiscountExceedsTotal = computed(
   padding: 5px 7px;
   background: var(--surface);
   outline: none;
-  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+  transition: border-color var(--duration-base) var(--ease-standard), box-shadow var(--duration-base) var(--ease-standard);
   width: 100%;
   font-size: 11.5px;
 }

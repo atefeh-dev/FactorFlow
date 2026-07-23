@@ -9,9 +9,53 @@ const store = useInvoiceStore();
 const { lineTotals, totals } = useInvoiceTotals();
 
 const partyRows = computed(() => [
-  { label: "فروشنده", party: store.seller },
-  { label: "خریدار", party: store.buyer },
+  { kind: "seller" as const, label: "فروشنده", party: store.seller },
+  { kind: "buyer" as const, label: "خریدار", party: store.buyer },
 ]);
+
+interface PartyFieldEntry {
+  label: string;
+  value: string;
+  /** Number-ish values render left-to-right (economic numbers, phone, email…). */
+  ltr?: boolean;
+  visible: boolean;
+}
+
+/** Row 1 and row 3 of each party table are fixed at 8 grid-columns wide
+ * (a "لبل" + "مقدار" pair per field). Hiding a field must not just delete
+ * its two <td>s — the browser would then read that row as narrower than
+ * the others and misalign every column beneath it (the exact bug fixed
+ * earlier in this table). Instead, the *last visible* field's value cell
+ * absorbs the freed width via colspan, so every row always sums to 8. */
+function buildPartyRow(entries: PartyFieldEntry[]) {
+  const visible = entries.filter((e) => e.visible);
+  return visible.map((entry, i) => ({
+    label: entry.label,
+    value: entry.value,
+    ltr: entry.ltr ?? false,
+    valColspan: i === visible.length - 1 ? 8 - 2 * visible.length + 1 : 1,
+  }));
+}
+
+function partyRow1(kind: "seller" | "buyer", party: { name: string; economicNumber: string; nationalId: string; registrationNumber: string }) {
+  const vis = kind === "seller" ? store.optional.sellerFields : store.optional.buyerFields;
+  return buildPartyRow([
+    { label: "نام", value: party.name, visible: true },
+    { label: "شماره اقتصادی", value: party.economicNumber, ltr: true, visible: vis.economicNumber },
+    { label: "شناسه ملی", value: party.nationalId, ltr: true, visible: vis.nationalId },
+    { label: "شماره ثبت", value: party.registrationNumber, ltr: true, visible: vis.registrationNumber },
+  ]);
+}
+
+function partyRow3(kind: "seller" | "buyer", party: { postalCode: string; phone: string; mobile: string; email: string }) {
+  const vis = kind === "seller" ? store.optional.sellerFields : store.optional.buyerFields;
+  return buildPartyRow([
+    { label: "کد پستی", value: party.postalCode, ltr: true, visible: vis.postalCode },
+    { label: "تلفن", value: party.phone, ltr: true, visible: vis.phone },
+    { label: "شماره همراه", value: party.mobile, ltr: true, visible: true },
+    { label: "ایمیل", value: party.email, ltr: true, visible: vis.email },
+  ]);
+}
 
 const curLabel = computed(() => currencyLabel(store.currency));
 
@@ -84,26 +128,20 @@ function money(value: number | null | undefined): string {
       <tbody>
         <tr>
           <td rowspan="3" class="party-table__label"><span class="rotated">{{ row.label }}</span></td>
-          <td class="lbl">نام</td>
-          <td class="val">{{ dash(row.party.name) }}</td>
-          <td class="lbl">شماره اقتصادی</td>
-          <td class="val ltr-nums">{{ dash(row.party.economicNumber) }}</td>
-          <td class="lbl">شناسه ملی</td>
-          <td class="val ltr-nums">{{ dash(row.party.nationalId) }}</td>
-          <td class="lbl">شماره ثبت</td>
-          <td class="val ltr-nums">{{ dash(row.party.registrationNumber) }}</td>
+          <template v-for="entry in partyRow1(row.kind, row.party)" :key="entry.label">
+            <td class="lbl">{{ entry.label }}</td>
+            <td class="val" :class="{ 'ltr-nums': entry.ltr }" :colspan="entry.valColspan">{{ dash(entry.value) }}</td>
+          </template>
         </tr>
         <tr>
           <td class="lbl">نشانی</td>
           <td class="val" colspan="7">{{ dash(row.party.address) }}</td>
         </tr>
         <tr>
-          <td class="lbl">کد پستی</td>
-          <td class="val ltr-nums">{{ dash(row.party.postalCode) }}</td>
-          <td class="lbl">تلفن</td>
-          <td class="val ltr-nums">{{ dash(row.party.phone) }}</td>
-          <td class="lbl">شماره همراه</td>
-          <td class="val ltr-nums" colspan="3">{{ dash(row.party.mobile) }}</td>
+          <template v-for="entry in partyRow3(row.kind, row.party)" :key="entry.label">
+            <td class="lbl">{{ entry.label }}</td>
+            <td class="val" :class="{ 'ltr-nums': entry.ltr }" :colspan="entry.valColspan">{{ dash(entry.value) }}</td>
+          </template>
         </tr>
       </tbody>
     </table>
@@ -466,6 +504,7 @@ function money(value: number | null | undefined): string {
   border-radius: 5px;
   background: transparent;
   color: var(--ink-muted);
+  transition: background var(--duration-base) var(--ease-standard), color var(--duration-base) var(--ease-standard);
   vertical-align: middle;
 }
 
@@ -476,6 +515,21 @@ function money(value: number | null | undefined): string {
 
 .copy-total-btn--copied {
   color: #1a7f4b;
+}
+
+.copy-total-btn--copied svg {
+  animation: copy-check-pop var(--duration-base) var(--ease-out);
+}
+
+@keyframes copy-check-pop {
+  from {
+    transform: scale(0.5);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
 }
 
 .footer-label {

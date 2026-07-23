@@ -204,7 +204,7 @@ function onManualInput(e: Event) {
   border: 1px solid var(--line);
   border-radius: var(--radius);
   background: var(--surface);
-  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+  transition: border-color var(--duration-base) var(--ease-standard), box-shadow var(--duration-base) var(--ease-standard);
 }
 
 .jdp:focus-within {
@@ -229,6 +229,7 @@ function onManualInput(e: Event) {
   background: transparent;
   color: var(--ink-muted);
   padding: 0 8px;
+  transition: color var(--duration-base) var(--ease-standard);
   display: flex;
   align-items: center;
   height: 100%;
@@ -283,6 +284,7 @@ function onManualInput(e: Event) {
   border-radius: 6px;
   border: none;
   background: transparent;
+  transition: background var(--duration-base) var(--ease-standard), color var(--duration-base) var(--ease-standard);
   color: #6b6b6b;
   font-size: 14px;
   cursor: pointer;
@@ -326,6 +328,7 @@ function onManualInput(e: Event) {
   display: flex;
   align-items: center;
   justify-content: center;
+  transition: background var(--duration-fast) var(--ease-standard), color var(--duration-fast) var(--ease-standard);
 }
 
 .jdp-day:hover:not(:disabled) {
@@ -366,6 +369,7 @@ function onManualInput(e: Event) {
   cursor: pointer;
   padding: 4px 6px;
   border-radius: 6px;
+  transition: background var(--duration-base) var(--ease-standard), color var(--duration-base) var(--ease-standard);
 }
 
 .jdp-text-btn:hover {

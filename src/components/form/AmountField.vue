@@ -151,7 +151,7 @@ function onInput(event: Event) {
   border-radius: 6px;
   overflow: hidden;
   background: var(--surface);
-  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+  transition: border-color var(--duration-base) var(--ease-standard), box-shadow var(--duration-base) var(--ease-standard);
 }
 
 .amount-field__control:focus-within {
