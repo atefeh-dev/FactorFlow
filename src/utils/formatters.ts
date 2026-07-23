@@ -7,6 +7,30 @@ export function formatRial(value: number | null | undefined): string {
   return new Intl.NumberFormat("en-US").format(value);
 }
 
+const PERSIAN_DIGITS = "۰۱۲۳۴۵۶۷۸۹";
+const ARABIC_INDIC_DIGITS = "٠١٢٣٤٥٦٧٨٩";
+
+/**
+ * Converts Persian ("۱۲۳") and Arabic-Indic ("١٢٣") digits to plain ASCII
+ * ones. Mobile keyboards set to Persian produce these by default, and a
+ * plain `parseFloat`/`Number()` silently treats them as NaN/0 — a common
+ * source of "my numbers don't work" bug reports in Persian web apps.
+ */
+export function normalizeDigits(value: string): string {
+  return value.replace(/[۰-۹٠-٩]/g, (ch) => {
+    const persianIndex = PERSIAN_DIGITS.indexOf(ch);
+    if (persianIndex !== -1) return String(persianIndex);
+    const arabicIndex = ARABIC_INDIC_DIGITS.indexOf(ch);
+    return arabicIndex !== -1 ? String(arabicIndex) : ch;
+  });
+}
+
+/** Parses free-typed amount text (any digit script, thousands separators, stray characters) into a whole number. */
+export function parseAmountInput(raw: string): number {
+  const digitsOnly = normalizeDigits(raw).replace(/[^\d]/g, "");
+  return digitsOnly === "" ? 0 : Number(digitsOnly);
+}
+
 /** 1 Toman = 10 Rial. All amounts are stored in Toman; this converts for display only. */
 const RIAL_PER_TOMAN = 10;
 

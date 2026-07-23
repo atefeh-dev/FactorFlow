@@ -84,4 +84,8 @@ button {
     overflow: visible;
     background: #fff;
   }
+
+  .no-export {
+    display: none !important;
+  }
 }

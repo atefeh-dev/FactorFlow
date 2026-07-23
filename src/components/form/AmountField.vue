@@ -1,7 +1,13 @@
 <script setup lang="ts">
 import { computed } from "vue";
 import type { Currency } from "../../types/invoice.types";
-import { currencyLabel, fromDisplayAmount, toDisplayAmount } from "../../utils/formatters";
+import {
+  currencyLabel,
+  fromDisplayAmount,
+  normalizeDigits,
+  parseAmountInput,
+  toDisplayAmount,
+} from "../../utils/formatters";
 
 const props = withDefaults(
   defineProps<{
@@ -14,8 +20,17 @@ const props = withDefaults(
     emphasize?: boolean;
     /** Set to false when a switch/heading above already states this field's name. */
     showLabel?: boolean;
+    /** Shows the caption (if any) as a warning instead of a neutral hint. */
+    invalid?: boolean;
   }>(),
-  { currency: "toman", readonly: false, caption: "", emphasize: false, showLabel: true }
+  {
+    currency: "toman",
+    readonly: false,
+    caption: "",
+    emphasize: false,
+    showLabel: true,
+    invalid: false,
+  }
 );
 
 const emit = defineEmits<{
@@ -23,11 +38,68 @@ const emit = defineEmits<{
 }>();
 
 const suffix = computed(() => currencyLabel(props.currency));
-const displayValue = computed(() => toDisplayAmount(props.modelValue, props.currency));
+
+// Live thousand-separators while typing (e.g. "122445568" -> "122,445,568")
+// rather than a raw digit string — the read-only preview already formats
+// amounts this way, so editable fields being unformatted was an
+// inconsistency, and 9-digit Toman amounts are genuinely hard to read
+// without separators.
+const displayValue = computed(() => {
+  const amount = toDisplayAmount(props.modelValue, props.currency);
+  if (!amount) return "";
+  return new Intl.NumberFormat("en-US").format(amount);
+});
+
+const ALLOWED_KEYS = new Set([
+  "Backspace",
+  "Delete",
+  "Tab",
+  "Enter",
+  "ArrowLeft",
+  "ArrowRight",
+  "ArrowUp",
+  "ArrowDown",
+  "Home",
+  "End",
+  "Escape",
+]);
+
+/**
+ * Blocks non-numeric characters at the keystroke itself rather than
+ * silently stripping them after the fact — the field should never let a
+ * letter/symbol appear at all, per the "reject non-numeric input" goal.
+ * Persian/Arabic-indic digits are allowed here (normalized on submit);
+ * copy/paste/select-all/undo shortcuts are always allowed through.
+ */
+function onKeydown(event: KeyboardEvent) {
+  if (event.ctrlKey || event.metaKey) return;
+  if (ALLOWED_KEYS.has(event.key)) return;
+  if (/^[0-9۰-۹٠-٩]$/.test(event.key)) return;
+  event.preventDefault();
+}
+
+/**
+ * Pasting is the other way invalid characters get into a field — sanitize
+ * the clipboard content and splice in only its digits instead of letting
+ * the browser paste the raw (possibly non-numeric) text.
+ */
+function onPaste(event: ClipboardEvent) {
+  event.preventDefault();
+  const target = event.target as HTMLInputElement;
+  const pasted = event.clipboardData?.getData("text") ?? "";
+  const sanitized = normalizeDigits(pasted).replace(/[^\d]/g, "");
+
+  const start = target.selectionStart ?? target.value.length;
+  const end = target.selectionEnd ?? target.value.length;
+  const nextRaw = target.value.slice(0, start) + sanitized + target.value.slice(end);
+
+  emit("update:modelValue", fromDisplayAmount(parseAmountInput(nextRaw), props.currency));
+}
 
 function onInput(event: Event) {
   const target = event.target as HTMLInputElement;
-  emit("update:modelValue", fromDisplayAmount(target.valueAsNumber || 0, props.currency));
+  const parsed = parseAmountInput(target.value);
+  emit("update:modelValue", fromDisplayAmount(parsed, props.currency));
 }
 </script>
 
@@ -35,21 +107,27 @@ function onInput(event: Event) {
   <div class="amount-field" :class="{ 'amount-field--readonly': readonly }">
     <span v-if="showLabel" class="amount-field__label">{{ label }}</span>
 
-    <div class="amount-field__control">
+    <div class="amount-field__control" :class="{ 'amount-field__control--invalid': invalid }">
       <input
         class="amount-field__input ltr-nums"
         :class="{ 'amount-field__input--emphasize': emphasize }"
-        type="number"
+        type="text"
+        inputmode="numeric"
+        dir="ltr"
         :readonly="readonly"
         :tabindex="readonly ? -1 : 0"
         :value="displayValue"
         :aria-label="showLabel ? undefined : label"
         @input="onInput"
+        @keydown="onKeydown"
+        @paste="onPaste"
       />
       <span class="amount-field__suffix">{{ suffix }}</span>
     </div>
 
-    <p v-if="caption" class="amount-field__caption">{{ caption }}</p>
+    <p v-if="caption" class="amount-field__caption" :class="{ 'amount-field__caption--invalid': invalid }">
+      {{ caption }}
+    </p>
   </div>
 </template>
 
@@ -79,6 +157,14 @@ function onInput(event: Event) {
 .amount-field__control:focus-within {
   border-color: #111111;
   box-shadow: 0 0 0 3px rgba(17, 17, 17, 0.08);
+}
+
+.amount-field__control--invalid {
+  border-color: var(--danger);
+}
+
+.amount-field__control--invalid:focus-within {
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--danger) 15%, transparent);
 }
 
 .amount-field__input {
@@ -123,5 +209,10 @@ function onInput(event: Event) {
   font-size: 10px;
   color: var(--ink-muted);
   line-height: 1.35;
+}
+
+.amount-field__caption--invalid {
+  color: var(--danger);
+  font-weight: 600;
 }
 </style>

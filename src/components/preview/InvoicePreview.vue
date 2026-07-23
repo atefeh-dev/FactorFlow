@@ -1,8 +1,9 @@
 <script setup lang="ts">
-import { computed } from "vue";
+import { computed, ref } from "vue";
 import { useInvoiceStore } from "../../stores/invoice.store";
 import { useInvoiceTotals } from "../../composables/useInvoiceTotals";
-import { currencyLabel, formatAmount, formatRial } from "../../utils/formatters";
+import { currencyLabel, formatAmount, formatRial, toDisplayAmount } from "../../utils/formatters";
+import { amountToWords } from "../../utils/numberToWords";
 
 const store = useInvoiceStore();
 const { lineTotals, totals } = useInvoiceTotals();
@@ -13,6 +14,27 @@ const partyRows = computed(() => [
 ]);
 
 const curLabel = computed(() => currencyLabel(store.currency));
+
+const finalTotalInWords = computed(() => {
+  const displayAmount = toDisplayAmount(totals.value.finalTotal, store.currency);
+  return amountToWords(displayAmount, curLabel.value);
+});
+
+const justCopiedTotal = ref(false);
+let copyResetTimer: ReturnType<typeof setTimeout> | null = null;
+
+async function copyFinalTotal() {
+  const text = `${money(totals.value.finalTotal) || "0"} ${curLabel.value}`;
+  try {
+    await navigator.clipboard.writeText(text);
+    justCopiedTotal.value = true;
+    if (copyResetTimer) clearTimeout(copyResetTimer);
+    copyResetTimer = setTimeout(() => (justCopiedTotal.value = false), 1500);
+  } catch {
+    // Clipboard API can be unavailable (insecure context/denied permission);
+    // copying is a convenience, not critical, so fail silently.
+  }
+}
 
 function dash(value: string): string {
   return value.trim() || "—";
@@ -166,7 +188,28 @@ function money(value: number | null | undefined): string {
         <tr>
           <td colspan="2" />
           <td class="footer-label">جمع کل پس از کسر تخفیف با احتساب مالیات و عوارض :</td>
-          <td class="ltr-nums"><strong>{{ money(totals.finalTotal) || "0" }} {{ curLabel }}</strong></td>
+          <td class="ltr-nums">
+            <strong>{{ money(totals.finalTotal) || "0" }} {{ curLabel }}</strong>
+            <button
+              type="button"
+              class="copy-total-btn no-export"
+              :class="{ 'copy-total-btn--copied': justCopiedTotal }"
+              title="کپی مبلغ نهایی"
+              @click="copyFinalTotal"
+            >
+              <svg v-if="!justCopiedTotal" viewBox="0 0 20 20" width="12" height="12" fill="none">
+                <rect x="7" y="7" width="10" height="10" rx="1.5" stroke="currentColor" stroke-width="1.5" />
+                <path d="M4.5 13.5H4A1.5 1.5 0 0 1 2.5 12V4A1.5 1.5 0 0 1 4 2.5h8A1.5 1.5 0 0 1 13.5 4v.5" stroke="currentColor" stroke-width="1.5" />
+              </svg>
+              <svg v-else viewBox="0 0 20 20" width="12" height="12" fill="none">
+                <path d="M4 10.5 8 14.5 16 5.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" />
+              </svg>
+            </button>
+          </td>
+        </tr>
+        <tr v-if="totals.finalTotal">
+          <td class="footer-label">مبلغ به حروف :</td>
+          <td colspan="3">{{ finalTotalInWords }}</td>
         </tr>
       </tbody>
     </table>
@@ -398,6 +441,29 @@ function money(value: number | null | undefined): string {
   border: 1px solid var(--line);
   padding: 6px 8px;
   font-size: 11.5px;
+}
+
+.copy-total-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  margin-inline-start: 6px;
+  border: none;
+  border-radius: 5px;
+  background: transparent;
+  color: var(--ink-muted);
+  vertical-align: middle;
+}
+
+.copy-total-btn:hover {
+  background: var(--surface-muted);
+  color: var(--ink);
+}
+
+.copy-total-btn--copied {
+  color: #1a7f4b;
 }
 
 .footer-label {

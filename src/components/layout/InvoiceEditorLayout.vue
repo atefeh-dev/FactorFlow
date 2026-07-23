@@ -97,8 +97,8 @@ const invoiceStore = useInvoiceStore();
 }
 
 .pane--form {
-  flex: 0 0 292px;
-  width: 292px;
+  flex: 0 0 316px;
+  width: 316px;
   border-left: 1px solid var(--line);
   background: #eef0ef;
   display: flex;

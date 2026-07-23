@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted } from "vue";
+import { ref, computed, onMounted } from "vue";
 import { useInvoiceStore } from "../../stores/invoice.store";
 import { currencyLabel, formatAmount } from "../../utils/formatters";
 import type { InvoiceLineItem, LineItemTotals } from "../../types/invoice.types";
@@ -23,6 +23,10 @@ const isOpen = ref(props.defaultOpen);
 const isRemoveConfirmOpen = ref(false);
 const inner = ref<HTMLElement | null>(null);
 const descriptionInput = ref<HTMLInputElement | null>(null);
+
+const discountExceedsTotal = computed(
+  () => props.lineTotals.totalAmount > 0 && props.row.discount > props.lineTotals.totalAmount
+);
 
 // Same measured-height technique as CollapsibleSection: grid-template-rows
 // 0fr/1fr silently breaks once this card is itself nested inside another
@@ -115,6 +119,7 @@ function setAmount(key: "unitPrice" | "discount" | "vatAmount", value: number) {
       </button>
 
       <span class="card__index">{{ index + 1 }}</span>
+      <span v-if="discountExceedsTotal" class="card__warning-dot" title="تخفیف نامعتبر" aria-hidden="true" />
 
       <span class="card__title">{{ row.description.trim() }}</span>
 
@@ -184,6 +189,8 @@ function setAmount(key: "unitPrice" | "discount" | "vatAmount", value: number) {
           label="تخفیف"
           :model-value="row.discount"
           :currency="store.currency"
+          :invalid="discountExceedsTotal"
+          :caption="discountExceedsTotal ? 'تخفیف نمی‌تواند بیشتر از مبلغ کل ردیف باشد' : ''"
           @update:model-value="(v) => setAmount('discount', v)"
         />
 
@@ -287,6 +294,14 @@ function setAmount(key: "unitPrice" | "discount" | "vatAmount", value: number) {
   text-align: center;
   font-size: 10.5px;
   color: var(--ink-muted);
+}
+
+.card__warning-dot {
+  flex: 0 0 auto;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--danger);
 }
 
 .card__title {

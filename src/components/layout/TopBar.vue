@@ -4,11 +4,11 @@ import { useInvoiceStore } from "../../stores/invoice.store";
 import { buildShareUrl } from "../../utils/shareLink";
 import { clearDraftStorage } from "../../composables/useAutosave";
 import ConfirmDialog from "../form/ConfirmDialog.vue";
-import AppButton from "../form/AppButton.vue";
 
 const store = useInvoiceStore();
 const toast = ref("");
 const isResetConfirmOpen = ref(false);
+const isExportingPdf = ref(false);
 let toastTimer: ReturnType<typeof setTimeout> | null = null;
 
 function showToast(message: string) {
@@ -27,8 +27,31 @@ async function generateLink() {
   }
 }
 
-function downloadPdf() {
-  window.print();
+async function downloadPdf() {
+  if (isExportingPdf.value) return;
+
+  // There's only ever one invoice sheet rendered at a time, so a direct
+  // query is simpler and just as reliable as plumbing a ref across the
+  // sidebar/preview component boundary via provide/inject.
+  const sheet = document.querySelector<HTMLElement>(".sheet");
+  if (!sheet) {
+    showToast("پیش‌نمایش فاکتور یافت نشد");
+    return;
+  }
+
+  const filename = `فاکتور-${store.header.invoiceNumber.trim() || "بدون-شماره"}.pdf`;
+
+  try {
+    const { exportElementToPdf } = await import("../../utils/pdfExport");
+    await exportElementToPdf(sheet, filename, {
+      onStart: () => (isExportingPdf.value = true),
+      onFinish: () => (isExportingPdf.value = false),
+    });
+  } catch (error) {
+    console.error("PDF export failed", error);
+    showToast("ساخت PDF با خطا مواجه شد");
+    isExportingPdf.value = false;
+  }
 }
 
 function confirmReset() {
@@ -48,10 +71,20 @@ function confirmReset() {
     </div>
 
     <div class="topbar__buttons">
-      <AppButton variant="text" @click="generateLink">ایجاد لینک فاکتور</AppButton>
-      <AppButton variant="solid" @click="downloadPdf">دانلود PDF</AppButton>
+      <button type="button" class="btn btn--text" @click="generateLink">ایجاد لینک فاکتور</button>
+      <button
+        type="button"
+        class="btn btn--solid"
+        :disabled="isExportingPdf"
+        @click="downloadPdf"
+      >
+        <span v-if="isExportingPdf" class="btn__spinner" aria-hidden="true" />
+        {{ isExportingPdf ? "در حال ساخت PDF…" : "دانلود PDF" }}
+      </button>
       <span class="btn-divider" aria-hidden="true" />
-      <AppButton variant="text" tone="muted" @click="isResetConfirmOpen = true">بازنشانی فرم</AppButton>
+      <button type="button" class="btn btn--text btn--muted" @click="isResetConfirmOpen = true">
+        بازنشانی فرم
+      </button>
     </div>
 
     <Transition name="toast-fade">
@@ -122,6 +155,65 @@ function confirmReset() {
   height: 16px;
   margin: 0 4px;
   background: var(--line);
+}
+
+.btn {
+  border-radius: 7px;
+  padding: 6px 11px;
+  font-size: 11.5px;
+  font-weight: 600;
+  border: 1px solid transparent;
+  white-space: nowrap;
+  background: transparent;
+}
+
+.btn--text {
+  color: var(--ink);
+}
+
+.btn--text:hover {
+  background: rgba(0, 0, 0, 0.05);
+}
+
+.btn--muted {
+  color: var(--ink-muted);
+}
+
+.btn--muted:hover {
+  background: transparent;
+  color: var(--danger);
+}
+
+.btn--solid {
+  background: #111111;
+  color: #fff;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.btn--solid:hover {
+  background: #2b2b2b;
+}
+
+.btn--solid:disabled {
+  background: #555555;
+  cursor: default;
+}
+
+.btn__spinner {
+  width: 11px;
+  height: 11px;
+  border-radius: 50%;
+  border: 2px solid rgba(255, 255, 255, 0.35);
+  border-top-color: #fff;
+  animation: btn-spin 0.7s linear infinite;
+}
+
+@keyframes btn-spin {
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 .toast {

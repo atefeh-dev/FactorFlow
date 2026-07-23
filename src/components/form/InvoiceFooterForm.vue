@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { computed } from "vue";
 import { useInvoiceStore } from "../../stores/invoice.store";
 import { useInvoiceTotals } from "../../composables/useInvoiceTotals";
 import { currencyLabel, formatAmount } from "../../utils/formatters";
@@ -9,6 +10,10 @@ import JalaliDatePicker from "./JalaliDatePicker.vue";
 
 const store = useInvoiceStore();
 const { totals } = useInvoiceTotals();
+
+const roundingDiscountExceedsTotal = computed(
+  () => totals.value.grandTotal > 0 && store.footer.roundingDiscount > totals.value.grandTotal
+);
 </script>
 
 <template>
@@ -56,6 +61,8 @@ const { totals } = useInvoiceTotals();
         :show-label="false"
         :model-value="store.footer.roundingDiscount"
         :currency="store.currency"
+        :invalid="roundingDiscountExceedsTotal"
+        :caption="roundingDiscountExceedsTotal ? 'این مقدار از جمع کل فاکتور بیشتر است' : ''"
         @update:model-value="(v) => store.updateFooter({ roundingDiscount: v })"
       />
     </div>
