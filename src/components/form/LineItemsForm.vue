@@ -4,6 +4,7 @@ import { useInvoiceStore } from "../../stores/invoice.store";
 import { useInvoiceTotals } from "../../composables/useInvoiceTotals";
 import { currencyLabel, formatAmount } from "../../utils/formatters";
 import LineItemCard from "./LineItemCard.vue";
+import AppButton from "./AppButton.vue";
 
 const store = useInvoiceStore();
 const { lineTotals, totals } = useInvoiceTotals();
@@ -47,10 +48,7 @@ function handleAddRow() {
       />
     </div>
 
-    <button type="button" class="add-row" @click="handleAddRow">
-      <span class="add-row__icon" aria-hidden="true">+</span>
-      افزودن ردیف
-    </button>
+    <AppButton variant="solid" block icon="+" @click="handleAddRow">افزودن ردیف</AppButton>
 
     <div class="summary">
       <div class="summary__item">
@@ -110,31 +108,6 @@ function handleAddRow() {
 .currency-switch__option--active {
   background: #111111;
   color: #fff;
-}
-
-.add-row {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 7px;
-  width: 100%;
-  border: none;
-  color: #ffffff;
-  background: #111111;
-  border-radius: 8px;
-  padding: 8px 12px;
-  font-size: 12px;
-  font-weight: 600;
-  transition: background 0.15s ease;
-}
-
-.add-row:hover {
-  background: #2b2b2b;
-}
-
-.add-row__icon {
-  font-size: 14px;
-  line-height: 1;
 }
 
 .summary {

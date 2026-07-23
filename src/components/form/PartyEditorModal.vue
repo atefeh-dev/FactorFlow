@@ -4,6 +4,7 @@ import { useInvoiceStore } from "../../stores/invoice.store";
 import type { PartyInfo } from "../../types/invoice.types";
 import AppModal from "./AppModal.vue";
 import ConfirmDialog from "./ConfirmDialog.vue";
+import AppButton from "./AppButton.vue";
 
 const props = defineProps<{
   kind: "seller" | "buyer";
@@ -86,19 +87,19 @@ function confirmRemoveParty() {
     </label>
 
     <template #footer>
-      <button
+      <AppButton
         v-if="isSeller ? store.hasSeller : store.hasBuyer"
-        type="button"
-        class="btn btn--ghost btn--danger"
+        variant="outline"
+        tone="danger"
         @click="isRemoveConfirmOpen = true"
       >
         حذف
-      </button>
+      </AppButton>
       <div class="footer-spacer" />
-      <button type="button" class="btn btn--ghost" @click="emit('close')">انصراف</button>
-      <button type="button" class="btn btn--dark" :disabled="!draft.name.trim() || !draft.address.trim()" @click="save">
+      <AppButton variant="outline" @click="emit('close')">انصراف</AppButton>
+      <AppButton variant="solid" :disabled="!draft.name.trim() || !draft.address.trim()" @click="save">
         ذخیره
-      </button>
+      </AppButton>
     </template>
   </AppModal>
 
@@ -155,42 +156,6 @@ function confirmRemoveParty() {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 12px 14px;
-}
-
-.btn {
-  border-radius: 7px;
-  padding: 7px 14px;
-  font-size: 12px;
-  font-weight: 600;
-  border: 1px solid transparent;
-}
-
-.btn--ghost {
-  background: #fff;
-  border-color: var(--line);
-  color: var(--ink);
-}
-
-.btn--ghost:hover {
-  border-color: #111111;
-}
-
-.btn--danger {
-  color: var(--danger);
-}
-
-.btn--dark {
-  background: #111111;
-  color: #fff;
-}
-
-.btn--dark:hover {
-  background: #2b2b2b;
-}
-
-.btn--dark:disabled {
-  background: #b7b7b7;
-  cursor: not-allowed;
 }
 
 .footer-spacer {

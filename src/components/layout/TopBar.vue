@@ -4,6 +4,7 @@ import { useInvoiceStore } from "../../stores/invoice.store";
 import { buildShareUrl } from "../../utils/shareLink";
 import { clearDraftStorage } from "../../composables/useAutosave";
 import ConfirmDialog from "../form/ConfirmDialog.vue";
+import AppButton from "../form/AppButton.vue";
 
 const store = useInvoiceStore();
 const toast = ref("");
@@ -47,12 +48,10 @@ function confirmReset() {
     </div>
 
     <div class="topbar__buttons">
-      <button type="button" class="btn btn--text" @click="generateLink">ایجاد لینک فاکتور</button>
-      <button type="button" class="btn btn--solid" @click="downloadPdf">دانلود PDF</button>
+      <AppButton variant="text" @click="generateLink">ایجاد لینک فاکتور</AppButton>
+      <AppButton variant="solid" @click="downloadPdf">دانلود PDF</AppButton>
       <span class="btn-divider" aria-hidden="true" />
-      <button type="button" class="btn btn--text btn--muted" @click="isResetConfirmOpen = true">
-        بازنشانی فرم
-      </button>
+      <AppButton variant="text" tone="muted" @click="isResetConfirmOpen = true">بازنشانی فرم</AppButton>
     </div>
 
     <Transition name="toast-fade">
@@ -123,42 +122,6 @@ function confirmReset() {
   height: 16px;
   margin: 0 4px;
   background: var(--line);
-}
-
-.btn {
-  border-radius: 7px;
-  padding: 6px 11px;
-  font-size: 11.5px;
-  font-weight: 600;
-  border: 1px solid transparent;
-  white-space: nowrap;
-  background: transparent;
-}
-
-.btn--text {
-  color: var(--ink);
-}
-
-.btn--text:hover {
-  background: rgba(0, 0, 0, 0.05);
-}
-
-.btn--muted {
-  color: var(--ink-muted);
-}
-
-.btn--muted:hover {
-  background: transparent;
-  color: var(--danger);
-}
-
-.btn--solid {
-  background: #111111;
-  color: #fff;
-}
-
-.btn--solid:hover {
-  background: #2b2b2b;
 }
 
 .toast {
