@@ -48,7 +48,7 @@ function money(value: number | null | undefined): string {
 <template>
   <div class="sheet">
     <header class="sheet__head">
-      <div v-if="store.optional.logo" class="sheet__logo">
+      <div class="sheet__logo" :class="{ 'sheet__logo--hidden': !store.optional.logo }">
         <img v-if="store.logoDataUrl" :src="store.logoDataUrl" alt="لوگو" class="sheet__logo-img" />
         <div v-else class="sheet__logo-placeholder" aria-hidden="true">
           <svg viewBox="0 0 24 24" width="16" height="16" fill="none">
@@ -61,7 +61,11 @@ function money(value: number | null | undefined): string {
 
       <div class="sheet__heading">
         <h1 class="sheet__title">صورت حساب الکترونیکی فروش</h1>
-        <p v-if="store.optional.headerNotes && store.header.notes" class="sheet__notes">
+        <p
+          v-if="store.header.notes"
+          class="sheet__notes"
+          :class="{ 'sheet__notes--hidden': !store.optional.headerNotes }"
+        >
           {{ store.header.notes }}
         </p>
       </div>
@@ -283,6 +287,10 @@ function money(value: number | null | undefined): string {
   flex: 0 0 auto;
 }
 
+.sheet__logo--hidden {
+  visibility: hidden;
+}
+
 .sheet__logo-img {
   width: 100%;
   height: 100%;
@@ -316,6 +324,10 @@ function money(value: number | null | undefined): string {
   font-size: 11.5px;
   color: var(--ink-muted);
   white-space: pre-wrap;
+}
+
+.sheet__notes--hidden {
+  visibility: hidden;
 }
 
 .sheet__meta {

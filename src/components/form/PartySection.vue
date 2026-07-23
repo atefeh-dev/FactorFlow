@@ -2,6 +2,7 @@
 import { computed, ref } from "vue";
 import { useInvoiceStore } from "../../stores/invoice.store";
 import PartyEditorModal from "./PartyEditorModal.vue";
+import AppButton from "./AppButton.vue";
 
 const props = defineProps<{
   kind: "seller" | "buyer";
@@ -17,10 +18,9 @@ const addLabel = computed(() => (props.kind === "seller" ? "افزودن فرو�
 
 <template>
   <div class="party-section">
-    <button v-if="!hasParty" type="button" class="add-btn" @click="isOpen = true">
-      <span class="add-btn__icon" aria-hidden="true">+</span>
+    <AppButton v-if="!hasParty" variant="solid" block icon="+" @click="isOpen = true">
       {{ addLabel }}
-    </button>
+    </AppButton>
 
     <button v-else type="button" class="summary-card" @click="isOpen = true">
       <span class="summary-card__avatar" aria-hidden="true">{{ party.name.trim().charAt(0) || "?" }}</span>
@@ -38,31 +38,6 @@ const addLabel = computed(() => (props.kind === "seller" ? "افزودن فرو�
 <style scoped>
 .party-section {
   display: flex;
-}
-
-.add-btn {
-  width: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 7px;
-  border: none;
-  color: #ffffff;
-  background: #111111;
-  border-radius: 8px;
-  padding: 9px 12px;
-  font-size: 12px;
-  font-weight: 600;
-  transition: background 0.15s ease;
-}
-
-.add-btn:hover {
-  background: #2b2b2b;
-}
-
-.add-btn__icon {
-  font-size: 15px;
-  line-height: 1;
 }
 
 .summary-card {
