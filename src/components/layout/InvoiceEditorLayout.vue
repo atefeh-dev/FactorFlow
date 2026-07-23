@@ -53,7 +53,9 @@ const invoiceStore = useInvoiceStore();
           <CollapsibleSection title="شرایط فروش و پرداخت" :default-open="false">
             <InvoiceFooterForm />
           </CollapsibleSection>
+        </div>
 
+        <div class="pane__footer">
           <SidebarStatus />
         </div>
       </div>
@@ -99,6 +101,8 @@ const invoiceStore = useInvoiceStore();
   width: 292px;
   border-left: 1px solid var(--line);
   background: #eef0ef;
+  display: flex;
+  flex-direction: column;
 }
 
 .pane--preview {
@@ -117,6 +121,24 @@ const invoiceStore = useInvoiceStore();
   overscroll-behavior: contain;
   -webkit-overflow-scrolling: touch;
   padding: 13px;
+}
+
+/* Inside .pane--form specifically, .pane__scroll shares its column with
+   .pane__footer below, so it needs to flex/shrink to make room instead of
+   claiming the full pane height. min-height: 0 here is deliberate and
+   wanted (unlike the collapsible-section bug below) — it's exactly what
+   lets this region shrink to "remaining space" and scroll internally. */
+.pane--form .pane__scroll {
+  height: auto;
+  flex: 1 1 auto;
+  min-height: 0;
+}
+
+.pane__footer {
+  flex: 0 0 auto;
+  padding: 8px 13px;
+  border-top: 1px solid var(--line);
+  background: #e7e9e8;
 }
 
 /* The preview is the primary focus of the page, so it gets noticeably more

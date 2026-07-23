@@ -27,9 +27,7 @@ const formatted = () =>
 
 <style scoped>
 .sidebar-status {
-  margin: 4px 0 0;
-  padding-top: 10px;
-  border-top: 1px dashed var(--line);
+  margin: 0;
   text-align: center;
   font-size: 10px;
   color: var(--ink-muted);

@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import AppModal from "./AppModal.vue";
-import AppButton from "./AppButton.vue";
 
 withDefaults(
   defineProps<{
@@ -22,10 +21,15 @@ const emit = defineEmits<{ confirm: []; cancel: [] }>();
     <p class="confirm-message">{{ message }}</p>
 
     <template #footer>
-      <AppButton variant="outline" @click="emit('cancel')">{{ cancelLabel }}</AppButton>
-      <AppButton variant="solid" :tone="danger ? 'danger' : 'default'" @click="emit('confirm')">
+      <button type="button" class="btn btn--ghost" @click="emit('cancel')">{{ cancelLabel }}</button>
+      <button
+        type="button"
+        class="btn"
+        :class="danger ? 'btn--danger' : 'btn--dark'"
+        @click="emit('confirm')"
+      >
         {{ confirmLabel }}
-      </AppButton>
+      </button>
     </template>
   </AppModal>
 </template>
@@ -36,5 +40,41 @@ const emit = defineEmits<{ confirm: []; cancel: [] }>();
   font-size: 12px;
   color: var(--ink);
   line-height: 1.6;
+}
+
+.btn {
+  border-radius: 7px;
+  padding: 7px 14px;
+  font-size: 12px;
+  font-weight: 600;
+  border: 1px solid transparent;
+}
+
+.btn--ghost {
+  background: #fff;
+  border-color: var(--line);
+  color: var(--ink);
+}
+
+.btn--ghost:hover {
+  border-color: #111111;
+}
+
+.btn--dark {
+  background: #111111;
+  color: #fff;
+}
+
+.btn--dark:hover {
+  background: #2b2b2b;
+}
+
+.btn--danger {
+  background: var(--danger);
+  color: #fff;
+}
+
+.btn--danger:hover {
+  background: #8f1f19;
 }
 </style>
